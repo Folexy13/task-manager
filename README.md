@@ -1,6 +1,4 @@
-Below is the `.md` file content for your **Task Manager App**. Copy it to your `README.md` file:
 
----
 
 # **Task Manager App**
 
