@@ -6,6 +6,8 @@ import morgan from "morgan";
 import { config, connectToDB } from "./Config";
 import Routes from "./Routes"
 import cron from "node-cron";
+import { TaskModel } from "./Models";
+import { Op } from "sequelize";
 
 const app: Application = express();
 const httpServer: HTTPServer = createServer(app);
@@ -23,9 +25,37 @@ connectToDB()
 // Set up API routes
 app.use("/api/v1/", Routes);
 
-const checkTaskStatus = () => {
+const checkTaskStatus = async () => {
     console.log("Cron job is running!");
-    // Add your logic here
+
+    try {
+        // Get the current time
+        const currentTime = new Date();
+
+        // Fetch tasks whose due_date is past the current time
+        const overdueTasks = await TaskModel.findAll({
+            where: {
+                due_date: {
+                    [Op.lt]: currentTime, // Due date is less than the current time
+                },
+                status: {
+                    [Op.not]: "Completed", // Optionally ensure it's not already completed
+                },
+            },
+        });
+
+        // Log the overdue tasks
+        if (overdueTasks.length > 0) {
+            console.log("Overdue tasks:");
+            overdueTasks.forEach((task: any) => {
+                console.log(`Task ID: ${task.id}, Title: ${task.title}, Due Date: ${task.due_date}`);
+            });
+        } else {
+            console.log("No overdue tasks found.");
+        }
+    } catch (error) {
+        console.error("Error checking task statuses:", error);
+    }
 };
 
 // Schedule the cron job for checking user (e.g., every minute)
