@@ -302,6 +302,6 @@ This project is licensed under the **MIT License**.
 
 You can use the Postman collection for interacting with the API. Below is a link to the dummy Postman collection:
 
-[**Task Manager API Postman Collection**](#)
+[**Task Manager API Postman Collection**](https://documenter.getpostman.com/view/14121430/2sAYBXAAmt)
 
 ---
