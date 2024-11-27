@@ -4,7 +4,7 @@ Below is the `.md` file content for your **Task Manager App**. Copy it to your `
 
 # **Task Manager App**
 
-A simple yet powerful task management application built with **TypeScript**, **Express**, **Sequelize**, and **PostgreSQL** for efficient task organization and management. This app provides a **RESTful API** for managing tasks with full CRUD functionality and pagination support for fetching tasks.
+A simple yet powerful task management application built with **TypeScript**, **Express**, **Sequelize**, and **PostgreSQL** for efficient task organization and management. This app provides a **RESTful API** for managing tasks with full CRUD functionality and pagination support for fetching tasks and also creating a Job to track task's status of overdued task
 
 ---
 
@@ -189,6 +189,7 @@ This will start the server on `http://localhost:8002`.
 - `POST /api/v1/users`: Create a new user (admin).
 - `GET /api/v1/users/:id`: Get a single user by ID.
 - `PUT /api/v1/users/:id`: Update user details.
+- `PATCH /api/v1/users/:id`: Set role for user.
 - `DELETE /api/v1/users/:id`: Delete a user.Only an admin can do this.
 
 ---
