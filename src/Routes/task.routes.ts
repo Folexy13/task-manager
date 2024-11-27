@@ -43,14 +43,13 @@ router
  */
 router
 	.route(`/:id`)
-	.put(
-		validate(ROUTES.TASK),          // Validate input for task update
+	.get(TaskController.GetTaskById)
+	.put(         // Validate input for task update
 		verifyToken,                    // Verify the authentication token
 		TaskController.UpdateTask       // Delegate to TaskController for update
 	)
 	.delete(
 		verifyToken,                    // Verify the authentication token
-		verifyAdmin,                     // Ensure the user has admin privileges
 		TaskController.DeleteTask       // Delegate to TaskController for task deletion
 	);
 

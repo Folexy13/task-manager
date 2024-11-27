@@ -15,6 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Models_1 = require("../Models"); // Assuming your Sequelize User model is named "User"
 const bcryptjs_1 = __importDefault(require("bcryptjs")); // For hashing passwords
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken")); // For creating JWT tokens
+const Config_1 = require("../Config");
+const pagination_1 = require("../Utils/pagination");
 const saltRounds = 10; // Number of rounds for bcrypt hashing
 /**
  * Represents a service for managing Users.
@@ -37,16 +39,23 @@ class UserService {
      */
     CreateUser(input) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
+                const { email } = input;
                 // Hashing the password before saving the user
                 const hashedPassword = yield bcryptjs_1.default.hash(input.password, saltRounds);
+                const isUserExist = yield Models_1.UserModel.findOne({
+                    where: { email },
+                });
+                if (isUserExist) {
+                    throw new Error("User already Exists!!");
+                }
                 // Creating a new user using Sequelize's create method
                 const newUser = yield Models_1.UserModel.create(Object.assign(Object.assign({}, input), { password: hashedPassword }));
                 return newUser; // Returning the created user
             }
             catch (error) {
-                console.log(error);
-                throw new Error("Failed to create user.");
+                throw new Error((_a = error === null || error === void 0 ? void 0 : error.message) !== null && _a !== void 0 ? _a : error);
             }
         });
     }
@@ -57,14 +66,17 @@ class UserService {
      * @throws Will throw an error if the retrieval fails.
      */
     GetAllUsers() {
-        return __awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, arguments, void 0, function* (limit = 10, page = 1) {
+            var _a;
             try {
-                const users = yield Models_1.UserModel.findAll(); // Get all users from the database
-                return users; // Returning all users
+                limit = Math.max(limit, 1); // Minimum of 1
+                page = Math.max(page, 1); // Minimum of 1
+                // Call the paginate utility to fetch paginated tasks
+                const paginationResult = yield (0, pagination_1.paginate)(Models_1.UserModel, { limit, page, total: 0 });
+                return paginationResult;
             }
             catch (error) {
-                console.log(error);
-                throw new Error("Failed to retrieve users.");
+                throw new Error((_a = error === null || error === void 0 ? void 0 : error.message) !== null && _a !== void 0 ? _a : error);
             }
         });
     }
@@ -77,6 +89,7 @@ class UserService {
      */
     GetUserById(userId) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 const user = yield Models_1.UserModel.findByPk(userId); // Find user by primary key (ID)
                 if (!user) {
@@ -85,8 +98,7 @@ class UserService {
                 return user; // Returning the user if found
             }
             catch (error) {
-                console.log(error);
-                throw new Error("Failed to retrieve user.");
+                throw new Error((_a = error === null || error === void 0 ? void 0 : error.message) !== null && _a !== void 0 ? _a : error);
             }
         });
     }
@@ -98,23 +110,25 @@ class UserService {
      * @returns {Promise<any>} - A promise that resolves to the updated user.
      * @throws Will throw an error if the user is not found or update fails.
      */
-    UpdateUser(userId, input) {
+    UpdateUser(user, input) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
-                const user = yield Models_1.UserModel.findByPk(userId); // Find the user by ID
                 if (!user) {
                     throw new Error("User not found.");
                 }
                 if (input.role && user.role !== "admin") {
                     throw new Error("Only Admin can change roles");
                 }
+                if (input.id !== user.id) {
+                    throw new Error("Only  this user can edit thier password!!");
+                }
                 // Updating user properties
                 const updatedUser = yield user.update(input);
                 return updatedUser; // Returning the updated user
             }
             catch (error) {
-                console.log(error);
-                throw new Error("Failed to update user.");
+                throw new Error((_a = error === null || error === void 0 ? void 0 : error.message) !== null && _a !== void 0 ? _a : error);
             }
         });
     }
@@ -127,6 +141,7 @@ class UserService {
      */
     DeleteUser(userId) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 const user = yield Models_1.UserModel.findByPk(userId); // Find user by ID
                 if (!user) {
@@ -137,8 +152,7 @@ class UserService {
                 return true; // Returning true if user is deleted
             }
             catch (error) {
-                console.log(error);
-                throw new Error("Failed to delete user.");
+                throw new Error((_a = error === null || error === void 0 ? void 0 : error.message) !== null && _a !== void 0 ? _a : error);
             }
         });
     }
@@ -152,6 +166,7 @@ class UserService {
      */
     SetUserRole(userId, role) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 const user = yield Models_1.UserModel.findByPk(userId); // Find user by ID
                 if (!user) {
@@ -163,8 +178,7 @@ class UserService {
                 return user; // Returning the user with the updated role
             }
             catch (error) {
-                console.log(error);
-                throw new Error("Failed to set user role.");
+                throw new Error((_a = error === null || error === void 0 ? void 0 : error.message) !== null && _a !== void 0 ? _a : error);
             }
         });
     }
@@ -178,25 +192,25 @@ class UserService {
      */
     LoginUser(email, password) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 const user = yield Models_1.UserModel.findOne({ where: { email } }); // Find user by email
                 if (!user) {
                     throw new Error("User not found.");
                 }
                 // Compare the provided password with the stored hashed password
-                const isPasswordValid = yield bcryptjs_1.default.compare(password, user.full_name);
+                const isPasswordValid = yield bcryptjs_1.default.compare(password, user.password);
                 if (!isPasswordValid) {
                     throw new Error("Invalid credentials.");
                 }
                 // Create JWT token
-                const token = jsonwebtoken_1.default.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, // Use the secret from the environment variables
+                const token = jsonwebtoken_1.default.sign({ id: user.id, role: user.role }, Config_1.config.jwtSecret, // Use the secret from the environment variables
                 { expiresIn: "1h" } // Set token expiration time
                 );
                 return token; // Returning the JWT token
             }
             catch (error) {
-                console.log(error);
-                throw new Error("Login failed.");
+                throw new Error((_a = error === null || error === void 0 ? void 0 : error.message) !== null && _a !== void 0 ? _a : error);
             }
         });
     }

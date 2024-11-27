@@ -9,7 +9,7 @@
 		"esModuleInterop": true,
 		"skipLibCheck": true,
 		"typeRoots": ["./node_modules/@types"],
-		"types": []
+		"types": ["jest"]
 	},
 	"include": ["src/**/*"],
 	"exclude": ["node_modules", "dist"]

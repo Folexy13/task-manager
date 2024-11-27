@@ -5,6 +5,7 @@ import cors from "cors";
 import morgan from "morgan";
 import { config, connectToDB } from "./Config";
 import Routes from "./Routes"
+import cron from "node-cron";
 
 const app: Application = express();
 const httpServer: HTTPServer = createServer(app);
@@ -22,10 +23,13 @@ connectToDB()
 // Set up API routes
 app.use("/api/v1/", Routes);
 
+const checkTaskStatus = () => {
+    console.log("Cron job is running!");
+    // Add your logic here
+};
 
-
-
-
+// Schedule the cron job for checking user (e.g., every minute)
+cron.schedule("* * * * *", checkTaskStatus);
 
 httpServer.listen(config.port, () => {
     console.log(`Server listening on port ${config.port}`);

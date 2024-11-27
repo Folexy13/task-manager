@@ -24,11 +24,6 @@ class Validator {
                         .withMessage("Title is required")
                         .isString()
                         .withMessage("Title must be a string."),
-                    (0, express_validator_1.body)("description")
-                        .isString()
-                        .withMessage("Description must be a string")
-                        .isLength({ min: 6 })
-                        .withMessage("Description must be at least 6 characters long"),
                     (0, express_validator_1.body)("due_date")
                         .not()
                         .isEmpty()
@@ -58,7 +53,14 @@ class Validator {
                         .withMessage("Phone must be a string")
                         .isLength({ min: 11, max: 14 })
                         .withMessage("Phone is not a valid Nigerian number"),
-                    (0, express_validator_1.body)("password").exists().withMessage("Password is required"),
+                    (0, express_validator_1.body)("password")
+                        .not()
+                        .isEmpty()
+                        .withMessage("Password is required")
+                        .isString()
+                        .withMessage("Password must be a string")
+                        .isLength({ min: 6 })
+                        .withMessage("Password must be at least 6 characters long"),
                 ];
             }
             case Helpers_1.ROUTES.LOGIN: {
@@ -75,8 +77,8 @@ class Validator {
                         .not()
                         .isEmpty()
                         .withMessage("Password is required")
-                        .isNumeric()
-                        .withMessage("Password must be a number")
+                        .isString()
+                        .withMessage("Password must be a string")
                         .isLength({ min: 6 })
                         .withMessage("Password must be at least 6 characters long"),
                 ];

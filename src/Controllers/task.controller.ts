@@ -8,8 +8,9 @@ import { TaskService } from "../Services/";
  * @description Provides endpoints for creating, managing, and interacting with tasks.
  * @author - Folajimi
  */
+
+const { GetAllTasks, CreateTask, GetTaskById, UpdateTask, DeleteTask } = new TaskService()
 class TaskController {
-    private service: TaskService;
 
     /**
      * Create a TaskController instance.
@@ -17,7 +18,6 @@ class TaskController {
      * @description Initializes an instance of the TaskController class with the TaskService.
      */
     constructor() {
-        this.service = new TaskService();
     }
 
     /**
@@ -36,11 +36,11 @@ class TaskController {
     ): Promise<void> {
         try {
             // Attempt to create a new task using the service method
-            const newTask = await this.service.CreateTask(req.body);
-            res.status(200).json(newTask); // Return the created task as a response
+            const newTask = await CreateTask(req.body);
+            res.status(200).json({ status: true, newTask }); // Return the created task as a response
         } catch (error: any) {
             // Handle errors and send an appropriate response
-            res.status(400).json({ error: error.message || error });
+            next(error)
         }
     }
 
@@ -59,10 +59,10 @@ class TaskController {
         next: NextFunction
     ): Promise<void> {
         try {
-            const tasks = await this.service.GetAllTasks();
+            const tasks = await GetAllTasks();
             res.status(200).json(tasks); // Return all tasks
         } catch (error: any) {
-            res.status(400).json({ error: error.message || error });
+            next(error)
         }
     }
 
@@ -82,10 +82,10 @@ class TaskController {
     ): Promise<void> {
         const taskId = parseInt(req.params.id, 10); // Extract the task ID from the request parameters
         try {
-            const task = await this.service.GetTaskById(taskId);
-            res.status(200).json(task); // Return the specific task
+            const task = await GetTaskById(taskId);
+            res.status(200).json({ status: true, task }); // Return the specific task
         } catch (error: any) {
-            res.status(400).json({ error: error.message || error });
+            next(error)
         }
     }
 
@@ -106,10 +106,10 @@ class TaskController {
         const taskId = parseInt(req.params.id, 10); // Extract task ID from URL params
         const updatedDetails = req.body; // Get updated task details from the request body
         try {
-            const updatedTask = await this.service.UpdateTask(taskId, updatedDetails);
-            res.status(200).json(updatedTask); // Return the updated task
+            const updatedTask = await UpdateTask(taskId, updatedDetails);
+            res.status(200).json({ statud: true, updatedTask }); // Return the updated task
         } catch (error: any) {
-            res.status(400).json({ error: error.message || error });
+            next(error)
         }
     }
 
@@ -129,14 +129,14 @@ class TaskController {
     ): Promise<void> {
         const taskId = parseInt(req.params.id, 10); // Extract task ID from URL params
         try {
-            const isDeleted = await this.service.DeleteTask(taskId);
+            const isDeleted = await DeleteTask(taskId);
             if (isDeleted) {
-                res.status(200).json({ message: "Task successfully deleted." }); // Success response
+                res.status(200).json({ status: true, message: "Task successfully deleted." }); // Success response
             } else {
-                res.status(404).json({ message: "Task not found." }); // Task not found error
+                res.status(404).json({ status: false, message: "Task not found." }); // Task not found error
             }
         } catch (error: any) {
-            res.status(400).json({ error: error.message || error });
+            next(error)
         }
     }
 }

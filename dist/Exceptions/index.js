@@ -12,6 +12,7 @@ const errorHandler = (err, req, res, next) => {
     const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
     res.status(statusCode);
     res.json({
+        status: false,
         message: err.message,
         stack: Config_1.config.environment !== "developement" ? null : err.stack,
     });

@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Models_1 = require("../Models");
+const pagination_1 = require("../Utils/pagination");
 /**
  * Represents a service for managing Tasks.
  * @class
@@ -32,14 +33,14 @@ class TaskService {
      */
     CreateTask(input) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 // Creating a new task using Sequelize's create method
                 const newTask = yield Models_1.TaskModel.create(Object.assign({}, input));
                 return newTask; // Returning the created task
             }
             catch (error) {
-                console.log(error);
-                throw new Error("Failed to create task.");
+                throw new Error((_a = error === null || error === void 0 ? void 0 : error.message) !== null && _a !== void 0 ? _a : error);
             }
         });
     }
@@ -50,14 +51,17 @@ class TaskService {
      * @throws Will throw an error if the retrieval fails.
      */
     GetAllTasks() {
-        return __awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, arguments, void 0, function* (limit = 10, page = 1) {
+            var _a;
             try {
-                const tasks = yield Models_1.TaskModel.findAll();
-                return tasks; // Returning all tasks
+                limit = Math.max(limit, 1); // Minimum of 1
+                page = Math.max(page, 1); // Minimum of 1
+                // Call the paginate utility to fetch paginated tasks
+                const paginationResult = yield (0, pagination_1.paginate)(Models_1.TaskModel, { limit, page, total: 0 });
+                return paginationResult;
             }
             catch (error) {
-                console.log(error);
-                throw new Error("Failed to retrieve tasks.");
+                throw new Error((_a = error === null || error === void 0 ? void 0 : error.message) !== null && _a !== void 0 ? _a : error);
             }
         });
     }
@@ -70,6 +74,7 @@ class TaskService {
      */
     GetTaskById(taskId) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 const task = yield Models_1.TaskModel.findByPk(taskId);
                 if (!task) {
@@ -79,7 +84,7 @@ class TaskService {
             }
             catch (error) {
                 console.log(error);
-                throw new Error("Failed to retrieve task.");
+                throw new Error((_a = error === null || error === void 0 ? void 0 : error.message) !== null && _a !== void 0 ? _a : error);
             }
         });
     }
@@ -93,6 +98,7 @@ class TaskService {
      */
     UpdateTask(taskId, input) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 const task = yield Models_1.TaskModel.findByPk(taskId);
                 if (!task) {
@@ -103,8 +109,7 @@ class TaskService {
                 return updatedTask; // Returning the updated task
             }
             catch (error) {
-                console.log(error);
-                throw new Error("Failed to update task.");
+                throw new Error((_a = error === null || error === void 0 ? void 0 : error.message) !== null && _a !== void 0 ? _a : error);
             }
         });
     }
@@ -117,6 +122,7 @@ class TaskService {
      */
     DeleteTask(taskId) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 const task = yield Models_1.TaskModel.findByPk(taskId);
                 if (!task) {
@@ -127,8 +133,7 @@ class TaskService {
                 return true; // Returning true if the task is deleted
             }
             catch (error) {
-                console.log(error);
-                throw new Error("Failed to delete task.");
+                throw new Error((_a = error === null || error === void 0 ? void 0 : error.message) !== null && _a !== void 0 ? _a : error);
             }
         });
     }

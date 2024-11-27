@@ -1,5 +1,6 @@
 import { ITaskProps } from "../Interfaces";
 import { TaskModel } from "../Models";
+import { paginate } from "../Utils/pagination"
 
 /**
  * Represents a service for managing Tasks.
@@ -29,9 +30,8 @@ class TaskService {
                 ...input,
             });
             return newTask; // Returning the created task
-        } catch (error) {
-            console.log(error);
-            throw new Error("Failed to create task.");
+        } catch (error: any) {
+            throw new Error(error?.message ?? error);
         }
     }
 
@@ -41,13 +41,18 @@ class TaskService {
      * @returns {Promise<any[]>} - A promise that resolves to an array of tasks.
      * @throws Will throw an error if the retrieval fails.
      */
-    public async GetAllTasks(): Promise<any[]> {
+    public async GetAllTasks(limit: number = 10, page: number = 1): Promise<any> {
         try {
-            const tasks = await TaskModel.findAll();
-            return tasks; // Returning all tasks
-        } catch (error) {
-            console.log(error);
-            throw new Error("Failed to retrieve tasks.");
+
+            limit = Math.max(limit, 1);  // Minimum of 1
+            page = Math.max(page, 1);    // Minimum of 1
+
+            // Call the paginate utility to fetch paginated tasks
+            const paginationResult = await paginate(TaskModel, { limit, page, total: 0 });
+
+            return paginationResult;
+        } catch (error: any) {
+            throw new Error(error?.message ?? error);
         }
     }
 
@@ -65,9 +70,9 @@ class TaskService {
                 throw new Error("Task not found.");
             }
             return task; // Returning the task if found
-        } catch (error) {
+        } catch (error: any) {
             console.log(error);
-            throw new Error("Failed to retrieve task.");
+            throw new Error(error?.message ?? error);
         }
     }
 
@@ -88,9 +93,8 @@ class TaskService {
             // Updating task properties
             const updatedTask = await task.update(input);
             return updatedTask; // Returning the updated task
-        } catch (error) {
-            console.log(error);
-            throw new Error("Failed to update task.");
+        } catch (error: any) {
+            throw new Error(error?.message ?? error);
         }
     }
 
@@ -110,9 +114,8 @@ class TaskService {
             // Deleting the task
             await task.destroy();
             return true; // Returning true if the task is deleted
-        } catch (error) {
-            console.log(error);
-            throw new Error("Failed to delete task.");
+        } catch (error: any) {
+            throw new Error(error?.message ?? error);
         }
     }
 }

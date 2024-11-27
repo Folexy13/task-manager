@@ -16,6 +16,7 @@ const Services_1 = require("../Services/");
  * @description Provides endpoints for creating, managing, and interacting with tasks.
  * @author - Folajimi
  */
+const { GetAllTasks, CreateTask, GetTaskById, UpdateTask, DeleteTask } = new Services_1.TaskService();
 class TaskController {
     /**
      * Create a TaskController instance.
@@ -23,7 +24,6 @@ class TaskController {
      * @description Initializes an instance of the TaskController class with the TaskService.
      */
     constructor() {
-        this.service = new Services_1.TaskService();
     }
     /**
      * Create a new Task.
@@ -38,12 +38,12 @@ class TaskController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 // Attempt to create a new task using the service method
-                const newTask = yield this.service.CreateTask(req.body);
-                res.status(200).json(newTask); // Return the created task as a response
+                const newTask = yield CreateTask(req.body);
+                res.status(200).json({ status: true, newTask }); // Return the created task as a response
             }
             catch (error) {
                 // Handle errors and send an appropriate response
-                res.status(400).json({ error: error.message || error });
+                next(error);
             }
         });
     }
@@ -59,11 +59,11 @@ class TaskController {
     GetAllTasks(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const tasks = yield this.service.GetAllTasks();
+                const tasks = yield GetAllTasks();
                 res.status(200).json(tasks); // Return all tasks
             }
             catch (error) {
-                res.status(400).json({ error: error.message || error });
+                next(error);
             }
         });
     }
@@ -80,11 +80,11 @@ class TaskController {
         return __awaiter(this, void 0, void 0, function* () {
             const taskId = parseInt(req.params.id, 10); // Extract the task ID from the request parameters
             try {
-                const task = yield this.service.GetTaskById(taskId);
-                res.status(200).json(task); // Return the specific task
+                const task = yield GetTaskById(taskId);
+                res.status(200).json({ status: true, task }); // Return the specific task
             }
             catch (error) {
-                res.status(400).json({ error: error.message || error });
+                next(error);
             }
         });
     }
@@ -102,11 +102,11 @@ class TaskController {
             const taskId = parseInt(req.params.id, 10); // Extract task ID from URL params
             const updatedDetails = req.body; // Get updated task details from the request body
             try {
-                const updatedTask = yield this.service.UpdateTask(taskId, updatedDetails);
-                res.status(200).json(updatedTask); // Return the updated task
+                const updatedTask = yield UpdateTask(taskId, updatedDetails);
+                res.status(200).json({ statud: true, updatedTask }); // Return the updated task
             }
             catch (error) {
-                res.status(400).json({ error: error.message || error });
+                next(error);
             }
         });
     }
@@ -123,16 +123,16 @@ class TaskController {
         return __awaiter(this, void 0, void 0, function* () {
             const taskId = parseInt(req.params.id, 10); // Extract task ID from URL params
             try {
-                const isDeleted = yield this.service.DeleteTask(taskId);
+                const isDeleted = yield DeleteTask(taskId);
                 if (isDeleted) {
-                    res.status(200).json({ message: "Task successfully deleted." }); // Success response
+                    res.status(200).json({ status: true, message: "Task successfully deleted." }); // Success response
                 }
                 else {
-                    res.status(404).json({ message: "Task not found." }); // Task not found error
+                    res.status(404).json({ status: false, message: "Task not found." }); // Task not found error
                 }
             }
             catch (error) {
-                res.status(400).json({ error: error.message || error });
+                next(error);
             }
         });
     }

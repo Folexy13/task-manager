@@ -18,7 +18,7 @@ router
 	.route("/:id")
 	.get(verifyToken, UserController.GetUserById)
 	.put(verifyToken, UserController.UpdateUser)
-	.patch(verifyToken, validate(ROUTES.USER), UserController.setRole)
+	.patch(verifyToken, verifyAdmin, UserController.setRole)
 	.delete(verifyToken, verifyAdmin, UserController.DeleteUser)
 
 

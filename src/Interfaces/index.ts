@@ -12,14 +12,16 @@ export interface Config {
 
 export interface ITaskProps {
   title: string;
-  due_date: string;
-  description: string;
+  due_date?: string;
+  description?: string;
   status?: string;
 }
 
 export interface IUserProps {
+  id?: string
   full_name: string;
   phone: string;
+  email: string;
   password: string;
   role?: string;
 

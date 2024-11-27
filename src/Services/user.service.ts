@@ -2,6 +2,8 @@ import { IUserProps } from "../Interfaces";  // Interface for user properties
 import { UserModel } from "../Models";  // Assuming your Sequelize User model is named "User"
 import bcrypt from "bcryptjs";  // For hashing passwords
 import jwt from "jsonwebtoken";  // For creating JWT tokens
+import { config } from "../Config"
+import { paginate } from "../Utils/pagination"
 
 const saltRounds = 10;  // Number of rounds for bcrypt hashing
 
@@ -27,8 +29,18 @@ class UserService {
      */
     public async CreateUser(input: IUserProps): Promise<any> {
         try {
+            const { email } = input
             // Hashing the password before saving the user
             const hashedPassword = await bcrypt.hash(input.password, saltRounds);
+
+            const isUserExist = await UserModel.findOne({
+                where: { email },
+            });
+
+            if (isUserExist) {
+                throw new Error("User already Exists!!");
+            }
+
 
             // Creating a new user using Sequelize's create method
             const newUser = await UserModel.create({
@@ -36,9 +48,8 @@ class UserService {
                 password: hashedPassword,  // Save the hashed password
             });
             return newUser; // Returning the created user
-        } catch (error) {
-            console.log(error);
-            throw new Error("Failed to create user.");
+        } catch (error: any) {
+            throw new Error(error?.message ?? error);
         }
     }
 
@@ -48,13 +59,17 @@ class UserService {
      * @returns {Promise<any[]>} - A promise that resolves to an array of users.
      * @throws Will throw an error if the retrieval fails.
      */
-    public async GetAllUsers(): Promise<any[]> {
+    public async GetAllUsers(limit: number = 10, page: number = 1): Promise<any> {
         try {
-            const users = await UserModel.findAll();  // Get all users from the database
-            return users;  // Returning all users
-        } catch (error) {
-            console.log(error);
-            throw new Error("Failed to retrieve users.");
+            limit = Math.max(limit, 1);  // Minimum of 1
+            page = Math.max(page, 1);    // Minimum of 1
+
+            // Call the paginate utility to fetch paginated tasks
+            const paginationResult = await paginate(UserModel, { limit, page, total: 0 });
+
+            return paginationResult;
+        } catch (error: any) {
+            throw new Error(error?.message ?? error);
         }
     }
 
@@ -72,9 +87,8 @@ class UserService {
                 throw new Error("User not found.");
             }
             return user;  // Returning the user if found
-        } catch (error) {
-            console.log(error);
-            throw new Error("Failed to retrieve user.");
+        } catch (error: any) {
+            throw new Error(error?.message ?? error);
         }
     }
 
@@ -86,21 +100,24 @@ class UserService {
      * @returns {Promise<any>} - A promise that resolves to the updated user.
      * @throws Will throw an error if the user is not found or update fails.
      */
-    public async UpdateUser(userId: number, input: IUserProps): Promise<any> {
+    public async UpdateUser(user: any, input: IUserProps): Promise<any> {
+
         try {
-            const user = await UserModel.findByPk(userId);  // Find the user by ID
+
             if (!user) {
                 throw new Error("User not found.");
             }
             if (input.role && user.role !== "admin") {
                 throw new Error("Only Admin can change roles");
             }
+            if (input.id !== user.id) {
+                throw new Error("Only  this user can edit thier password!!");
+            }
             // Updating user properties
             const updatedUser = await user.update(input);
             return updatedUser;  // Returning the updated user
-        } catch (error) {
-            console.log(error);
-            throw new Error("Failed to update user.");
+        } catch (error: any) {
+            throw new Error(error?.message ?? error);
         }
     }
 
@@ -120,9 +137,8 @@ class UserService {
             // Deleting the user
             await user.destroy();  // Destroy the user from the database
             return true;  // Returning true if user is deleted
-        } catch (error) {
-            console.log(error);
-            throw new Error("Failed to delete user.");
+        } catch (error: any) {
+            throw new Error(error?.message ?? error);
         }
     }
 
@@ -144,9 +160,8 @@ class UserService {
             user.role = role;  // Set the new role
             await user.save();  // Save the updated user back to the database
             return user;  // Returning the user with the updated role
-        } catch (error) {
-            console.log(error);
-            throw new Error("Failed to set user role.");
+        } catch (error: any) {
+            throw new Error(error?.message ?? error);
         }
     }
 
@@ -160,13 +175,13 @@ class UserService {
      */
     public async LoginUser(email: string, password: string): Promise<string> {
         try {
-            const user = await UserModel.findOne({ where: { email } });  // Find user by email
+            const user: any = await UserModel.findOne({ where: { email } });  // Find user by email
             if (!user) {
                 throw new Error("User not found.");
             }
 
             // Compare the provided password with the stored hashed password
-            const isPasswordValid = await bcrypt.compare(password, user.full_name);
+            const isPasswordValid = await bcrypt.compare(password, user.password);
             if (!isPasswordValid) {
                 throw new Error("Invalid credentials.");
             }
@@ -174,14 +189,12 @@ class UserService {
             // Create JWT token
             const token = jwt.sign(
                 { id: user.id, role: user.role },
-                process.env.JWT_SECRET as string,  // Use the secret from the environment variables
+                config.jwtSecret,  // Use the secret from the environment variables
                 { expiresIn: "1h" }  // Set token expiration time
             );
-
             return token;  // Returning the JWT token
-        } catch (error) {
-            console.log(error);
-            throw new Error("Login failed.");
+        } catch (error: any) {
+            throw new Error(error?.message ?? error);
         }
     }
 }

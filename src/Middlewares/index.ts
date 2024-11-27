@@ -15,14 +15,15 @@ export async function verifyToken(
     res.status(401).json({ "Error": "Access denied. No token provided" });
   }
 
+  console.log(token)
   try {
     const decoded: any = jwt.verify(token, config.jwtSecret);
     req.user = await User.findByPk(decoded.id, {
       attributes: { exclude: ['password'] } // Exclude password field
     });
     next();
-  } catch (error) {
-    res.status(400).json({ "Error": "Invalid token" });
+  } catch (error: any) {
+    next(error)
   }
 }
 
@@ -44,14 +45,14 @@ export async function verifyAdmin(
     const user = req.user;
 
     if (!user || user.role !== "admin") {
-      return res.status(403).json({ error: "Forbidden: Admin role required" });
+      throw new Error("Forbidden: Admin role required")
     }
 
     // If the user is an admin, continue to the next middleware
     next();
   } catch (error) {
     // Handle any errors that might occur
-    console.error(error);
-    return res.status(500).json({ error: "Server error" });
+    next(error)
+
   }
 }

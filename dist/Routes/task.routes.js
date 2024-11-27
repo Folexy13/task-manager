@@ -44,12 +44,12 @@ router
  */
 router
     .route(`/:id`)
-    .put((0, Validations_1.default)(Helpers_1.ROUTES.TASK), // Validate input for task update
+    .get(Controllers_1.TaskController.GetTaskById)
+    .put(// Validate input for task update
 Middlewares_1.verifyToken, // Verify the authentication token
 Controllers_1.TaskController.UpdateTask // Delegate to TaskController for update
 )
     .delete(Middlewares_1.verifyToken, // Verify the authentication token
-Middlewares_1.verifyAdmin, // Ensure the user has admin privileges
 Controllers_1.TaskController.DeleteTask // Delegate to TaskController for task deletion
 );
 // Export the router for use in the application

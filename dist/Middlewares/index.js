@@ -24,6 +24,7 @@ function verifyToken(req, res, next) {
         if (!token) {
             res.status(401).json({ "Error": "Access denied. No token provided" });
         }
+        console.log(token);
         try {
             const decoded = jsonwebtoken_1.default.verify(token, Config_1.config.jwtSecret);
             req.user = yield user_model_1.default.findByPk(decoded.id, {
@@ -32,7 +33,7 @@ function verifyToken(req, res, next) {
             next();
         }
         catch (error) {
-            res.status(400).json({ "Error": "Invalid token" });
+            next(error);
         }
     });
 }
@@ -49,15 +50,14 @@ function verifyAdmin(req, res, next) {
             // Check if the user is an admin
             const user = req.user;
             if (!user || user.role !== "admin") {
-                return res.status(403).json({ error: "Forbidden: Admin role required" });
+                throw new Error("Forbidden: Admin role required");
             }
             // If the user is an admin, continue to the next middleware
             next();
         }
         catch (error) {
             // Handle any errors that might occur
-            console.error(error);
-            return res.status(500).json({ error: "Server error" });
+            next(error);
         }
     });
 }

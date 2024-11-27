@@ -19,6 +19,6 @@ router
     .route("/:id")
     .get(Middlewares_1.verifyToken, Controllers_1.UserController.GetUserById)
     .put(Middlewares_1.verifyToken, Controllers_1.UserController.UpdateUser)
-    .patch(Middlewares_1.verifyToken, (0, Validations_1.default)(Helpers_1.ROUTES.USER), Controllers_1.UserController.setRole)
+    .patch(Middlewares_1.verifyToken, Middlewares_1.verifyAdmin, Controllers_1.UserController.setRole)
     .delete(Middlewares_1.verifyToken, Middlewares_1.verifyAdmin, Controllers_1.UserController.DeleteUser);
 exports.default = router;

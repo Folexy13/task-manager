@@ -33,9 +33,9 @@ class UserController {
     ): Promise<void> {
         try {
             const newUser = await CreateUser(req.body);
-            res.status(200).json(newUser); // Return the created user
+            res.status(200).json({ status: true, newUser }); // Return the created user
         } catch (error: any) {
-            res.status(400).json({ error: error.message || error });
+            next(error)
         }
     }
 
@@ -56,9 +56,9 @@ class UserController {
         const { email, password } = req.body; // Extract email and password from request body
         try {
             const token = await LoginUser(email, password);
-            res.status(200).json({ token }); // Return the token
+            res.status(200).json({ status: true, token }); // Return the token
         } catch (error: any) {
-            res.status(400).json({ error: error.message || error });
+            next(error)
         }
     }
 
@@ -81,7 +81,7 @@ class UserController {
             const users = await GetAllUsers();
             res.status(200).json(users); // Return the list of users
         } catch (error: any) {
-            res.status(400).json({ error: error.message || error });
+            next(error)
         }
     }
 
@@ -102,9 +102,9 @@ class UserController {
         const userId = parseInt(req.params.id, 10); // Extract user ID from URL params
         try {
             const user = await GetUserById(userId);
-            res.status(200).json(user); // Return the specific user
+            res.status(200).json({ status: true, user }); // Return the specific user
         } catch (error: any) {
-            res.status(400).json({ error: error.message || error });
+            next(error)
         }
     }
 
@@ -118,17 +118,17 @@ class UserController {
      * @throws Will throw an error if updating the user fails.
      */
     public async UpdateUser(
-        req: Request,
+        req: AuthenticatedRequest,
         res: Response,
         next: NextFunction
     ): Promise<void> {
         const userId = parseInt(req.params.id, 10); // Extract user ID from URL params
-        const updatedDetails = req.body; // Get updated user details from the request body
+        const updatedDetails = { ...req.body, id: userId }; // Get updated user details from the request body
         try {
-            const updatedUser = await UpdateUser(userId, updatedDetails);
-            res.status(200).json(updatedUser); // Return the updated user
-        } catch (error: any) {
-            res.status(400).json({ error: error.message || error });
+            const updatedUser = await UpdateUser(req.user, updatedDetails);
+            res.status(200).json({ status: true, updatedUser }); // Return the updated user
+        } catch (error) {
+            next(error)
         }
     }
 
@@ -150,12 +150,12 @@ class UserController {
         try {
             const isDeleted = await DeleteUser(userId);
             if (isDeleted) {
-                res.status(200).json({ message: "User successfully deleted." }); // Success response
+                res.status(200).json({ status: true, message: "User successfully deleted." }); // Success response
             } else {
-                res.status(404).json({ message: "User not found." }); // User not found error
+                res.status(404).json({ status: false, message: "User not found." }); // User not found error
             }
         } catch (error: any) {
-            res.status(400).json({ error: error.message || error });
+            next(error)
         }
     }
 
@@ -171,13 +171,14 @@ class UserController {
     public async setRole(
         req: AuthenticatedRequest,
         res: Response,
+        next: NextFunction
     ): Promise<void> {
         const userId = parseInt(req.params.id, 10); // Extract the user ID from URL params
         try {
             const updatedUser = await SetUserRole(userId, req.user.role);
-            res.status(200).json(updatedUser); // Return the user with the updated role
+            res.status(200).json({ status: true, updatedUser }); // Return the user with the updated role
         } catch (error: any) {
-            res.status(400).json({ error: error.message || error });
+            next(error)
         }
     }
 }

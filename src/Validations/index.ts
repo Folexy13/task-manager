@@ -28,11 +28,6 @@ class Validator {
 						.withMessage("Title is required")
 						.isString()
 						.withMessage("Title must be a string."),
-					body("description")
-						.isString()
-						.withMessage("Description must be a string")
-						.isLength({ min: 6 })
-						.withMessage("Description must be at least 6 characters long"),
 					body("due_date")
 						.not()
 						.isEmpty()
@@ -63,7 +58,14 @@ class Validator {
 						.withMessage("Phone must be a string")
 						.isLength({ min: 11, max: 14 })
 						.withMessage("Phone is not a valid Nigerian number"),
-					body("password").exists().withMessage("Password is required"),
+					body("password")
+						.not()
+						.isEmpty()
+						.withMessage("Password is required")
+						.isString()
+						.withMessage("Password must be a string")
+						.isLength({ min: 6 })
+						.withMessage("Password must be at least 6 characters long"),
 				];
 			}
 
@@ -81,8 +83,8 @@ class Validator {
 						.not()
 						.isEmpty()
 						.withMessage("Password is required")
-						.isNumeric()
-						.withMessage("Password must be a number")
+						.isString()
+						.withMessage("Password must be a string")
 						.isLength({ min: 6 })
 						.withMessage("Password must be at least 6 characters long"),
 				];
