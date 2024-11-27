@@ -1,0 +1,58 @@
+{
+	"name": "task_manager",
+	"version": "1.0.0",
+	"description": "A test task  manager",
+	"main": "app.js",
+	"overrides": {
+		"@types/mime": "3.0.4"
+	},
+	"scripts": {
+		"build": "rimraf ./dist && tsc",
+		"start": "node dist/app.js",
+		"format": "prettier --write 'src/**/*.js' 'src/**/*.jsx' 'src/**/*.ts' 'src/**/*.tsx'",
+		"test": "jest --watchAll",
+		"monitor": "pm2 monit",
+		"log": "pm2 logs",
+		"dev": "tsc-watch --onSuccess \"node ./dist/app.js\"",
+		"migrate": "npx sequelize-cli db:migrate"
+	},
+	"author": "Aluko O. Folajimi",
+	"license": "ISC",
+	"devDependencies": {
+		"@types/bcryptjs": "^2.4.6",
+		"@types/cors": "^2.8.17",
+		"@types/express": "^5.0.0",
+		"@types/express-validator": "^2.20.33",
+		"@types/jest": "^29.5.14",
+		"@types/jsonwebtoken": "^9.0.7",
+		"@types/morgan": "^1.9.9",
+		"@types/node": "^22.10.0",
+		"@types/sequelize": "^4.28.20",
+		"@types/swagger-jsdoc": "^6.0.4",
+		"@types/swagger-ui-express": "^4.1.7",
+		"@types/validator": "^13.12.2",
+		"express": "^4.21.1",
+		"pm2": "^5.4.3",
+		"rimraf": "^6.0.1",
+		"sequelize-cli": "^6.6.2",
+		"ts-jest": "^29.2.5",
+		"tsc-watch": "^6.2.1",
+		"typescript": "^5.7.2"
+	},
+	"dependencies": {
+		"@nestjs/swagger": "^8.0.7",
+		"bcryptjs": "^2.4.3",
+		"cors": "^2.8.5",
+		"dotenv": "^16.4.5",
+		"express-validator": "^7.2.0",
+		"jsonwebtoken": "^9.0.2",
+		"morgan": "^1.10.0",
+		"pg": "^8.13.1",
+		"pg-hstore": "^2.3.4",
+		"prettier": "^3.4.1",
+		"request-public-ip": "^1.2.0",
+		"sequelize": "^6.37.5",
+		"swagger-jsdoc": "^6.2.8",
+		"swagger-ui-express": "^5.0.1"
+	}
+}
