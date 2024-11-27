@@ -60,7 +60,7 @@ const checkTaskStatus = async () => {
     }
 };
 
-// Schedule the cron job for checking user (e.g., every minute)
+// Schedule the cron job for checking task status (e.g., every minute)
 cron.schedule("* * * * *", checkTaskStatus);
 
 httpServer.listen(config.port, () => {
