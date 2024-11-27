@@ -8,6 +8,7 @@ import Routes from "./Routes"
 import cron from "node-cron";
 import { TaskModel } from "./Models";
 import { Op } from "sequelize";
+import moment from "moment"
 
 const app: Application = express();
 const httpServer: HTTPServer = createServer(app);
@@ -48,7 +49,8 @@ const checkTaskStatus = async () => {
         if (overdueTasks.length > 0) {
             console.log("Overdue tasks:");
             overdueTasks.forEach((task: any) => {
-                console.log(`Task ID: ${task.id}, Title: ${task.title}, Due Date: ${task.due_date}`);
+                const formattedDueDate = moment(task.due_date).format("MMMM Do YYYY, h:mm:ss a");
+                console.log(`Task ID: ${task.id}, Title: ${task.title}, Due Date: ${formattedDueDate}`);
             });
         } else {
             console.log("No overdue tasks found.");

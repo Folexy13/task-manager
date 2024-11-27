@@ -21,6 +21,7 @@ const Routes_1 = __importDefault(require("./Routes"));
 const node_cron_1 = __importDefault(require("node-cron"));
 const Models_1 = require("./Models");
 const sequelize_1 = require("sequelize");
+const moment_1 = __importDefault(require("moment"));
 const app = (0, express_1.default)();
 const httpServer = (0, http_1.createServer)(app);
 // Middleware Setup
@@ -51,7 +52,8 @@ const checkTaskStatus = () => __awaiter(void 0, void 0, void 0, function* () {
         if (overdueTasks.length > 0) {
             console.log("Overdue tasks:");
             overdueTasks.forEach((task) => {
-                console.log(`Task ID: ${task.id}, Title: ${task.title}, Due Date: ${task.due_date}`);
+                const formattedDueDate = (0, moment_1.default)(task.due_date).format("MMMM Do YYYY, h:mm:ss a");
+                console.log(`Task ID: ${task.id}, Title: ${task.title}, Due Date: ${formattedDueDate}`);
             });
         }
         else {
